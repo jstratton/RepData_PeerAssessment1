@@ -2,17 +2,43 @@
 title: "Reproducible Research: Peer Assessment 1"
 output: 
   html_document:
-    keep_md: true
+    keep_md: yes
 ---
 
 
 ## Loading and preprocessing the data
 
+```{r getdata, warning=FALSE}
+# Read in the data
+fileloc <- paste0(getwd(), "/activity/activity.csv")
+steps <- read.csv(fileloc, header = TRUE, na.strings = "NA", colClasses = "character")
+
+# Convert from character strings to numeric and POSIXlt values.
+steps[,1] <- as.numeric(steps[,1])
+steps[,2] <- as.POSIXct(steps[,2], format = "%Y-%m-%d")
+steps[,3] <- as.numeric(steps[,3])
+```
 
 
 ## What is mean total number of steps taken per day?
+```{r histogram, warning=FALSE}
+library(dplyr)
 
+# Make a histogram of the number of steps taken each day
+total_steps <- steps %>% group_by(date) %>% summarise_each(funs(sum), steps)
+hist(total_steps$steps, col = "red", main = "Histogram of Daily Steps", xlab = "Daily Steps", ylim = c(0,30))
+```
 
+```{r meanandmedian, warning=FALSE}
+options(scipen = 2)
+# Compute the mean number of steps per day
+mean_steps <- mean(total_steps$steps, na.rm = TRUE)
+
+# Compute the median number of steps per day
+median_steps <- median(total_steps$steps, na.rm = TRUE)
+```
+-The mean number of steps per day was `r mean_steps`.  
+-The median number of steps per day was `r median_steps`.
 
 ## What is the average daily activity pattern?
 
