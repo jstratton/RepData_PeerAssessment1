@@ -11,12 +11,12 @@ output:
 ```{r getdata, warning=FALSE}
 # Read in the data
 fileloc <- paste0(getwd(), "/activity/activity.csv")
-steps <- read.csv(fileloc, header = TRUE, na.strings = "NA", colClasses = "character")
+activity <- read.csv(fileloc, header = TRUE, na.strings = "NA", colClasses = "character")
 
 # Convert from character strings to numeric and POSIXlt values.
-steps[,1] <- as.numeric(steps[,1])
-steps[,2] <- as.POSIXct(steps[,2], format = "%Y-%m-%d")
-steps[,3] <- as.numeric(steps[,3])
+activity[,1] <- as.numeric(activity[,1])
+activity[,2] <- as.POSIXct(activity[,2], format = "%Y-%m-%d")
+activity[,3] <- as.numeric(activity[,3])
 ```
 
 
@@ -24,28 +24,68 @@ steps[,3] <- as.numeric(steps[,3])
 ```{r histogram, warning=FALSE}
 library(dplyr)
 
-# Make a histogram of the number of steps taken each day
-total_steps <- steps %>% group_by(date) %>% summarise_each(funs(sum), steps)
-hist(total_steps$steps, col = "red", main = "Histogram of Daily Steps", xlab = "Daily Steps", ylim = c(0,30))
+# Remove the NA values, group by the date, and then find the sum of the steps by date
+clean_steps <- activity[is.na(activity$steps) == FALSE,]
+total_steps <- clean_steps %>% group_by(date) %>% summarise_each(funs(sum), steps)
+
+# Make the histogram
+hist(x = total_steps$steps, col = "red", main = "Histogram of Daily Steps", xlab = "Daily Steps", ylim = c(0, 30))
 ```
 
 ```{r meanandmedian, warning=FALSE}
+# Convince R to give the below output without using scientific notations.
 options(scipen = 2)
+
 # Compute the mean number of steps per day
 mean_steps <- mean(total_steps$steps, na.rm = TRUE)
 
 # Compute the median number of steps per day
 median_steps <- median(total_steps$steps, na.rm = TRUE)
 ```
--The mean number of steps per day was `r mean_steps`.  
--The median number of steps per day was `r median_steps`.
+* The mean number of steps per day was `r mean_steps`.  
+* The median number of steps per day was `r median_steps`.
 
 ## What is the average daily activity pattern?
+```{r avgpattern}
+# Group the data by the time interval and take the average number steps.
+avg_activity <- clean_steps %>% group_by(interval) %>% summarise_each(funs(mean), steps)
 
+# Create a time series plot of the average number of steps taken in a given interval.
+plot(x = avg_activity, type = "l", main = "Average Number of Steps vs. Time Interval", xlab = "5 Minute Interval", ylab = "Average Number of Steps")
+
+# Find the index of the interval with the maximum average activity.
+max_interval <- which.max(avg_activity$steps)
+```
+* The highest activity interval is `r avg_activity[max_interval, 1]`.
 
 
 ## Imputing missing values
+```{r noofna}
+num_nas <- sum(is.na(activity$steps))
+```
 
+* The number of NAs in the dataset is `r num_nas`.  
+* Determine if the NAs encompass the entire day when they occur:
 
+```{r allnaproof}
+# Separate the NA rows from the activity data set.
+na_data <- filter(activity, is.na(steps))
+na_free <- filter(activity, !is.na(steps))
+
+overlap <- na_free$date %in% na_data$date
+```
+* There are `r sum(overlap)` matches between the two data sets.  
+* Therefore, in every case the NAs take up the entire day they occur in.  
+* In light of this, my strategy is going to be to use the average for the five minute intervals to impute the NAs.
+
+```{r imputation}
+# Construct a data frame to match average interval step values to each NA
+linker <- data.frame(0:2355, rep(0, times = 2356))
+colnames(linker) <- c("interval", "avg_steps")
+linker[avg_activity$interval + 1, 2] <- avg_activity$steps
+
+# overwrite the NA values
+na_data <- mutate(na_data, steps = linker[interval + 1, 2])
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?
