@@ -216,8 +216,21 @@ activity[,3] &lt;- as.numeric(activity[,3])
 <h2>What is mean total number of steps taken per day?</h2>
 
 <pre><code class="r">library(dplyr)
+</code></pre>
 
-# Remove the NA values, group by the date, and then find the sum of the steps by date
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;
+## 
+## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag
+## 
+## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union
+</code></pre>
+
+<pre><code class="r"># Remove the NA values, group by the date, and then find the sum of the steps by date
 clean_steps &lt;- activity[is.na(activity$steps) == FALSE,]
 total_steps &lt;- clean_steps %&gt;% group_by(date) %&gt;% summarise_each(funs(sum), steps)
 
@@ -280,8 +293,8 @@ overlap &lt;- na_free$date %in% na_data$date
 
 <ul>
 <li>There are 0 matches between the two data sets.<br/></li>
-<li>This indicates that in every case the NAs indicate for missing days.<br/></li>
-<li>Therefore, my strategy is going to be to use the average for the five minute intervals to impute the NAs.<br/></li>
+<li>This indicates that in every case the NAs indicate a missing day.<br/></li>
+<li>Therefore, my imputation strategy will be to replace the NAs within a given interval with the average number of steps per day for that interval (calculated earlier without the NAs).<br/></li>
 </ul>
 
 <pre><code class="r"># Construct a data frame to match average interval step values to each NA
@@ -342,8 +355,13 @@ activity_imputed$week_part &lt;- factor(x = activity_imputed$week_part, levels =
 
 <pre><code class="r"># Import the qplot library
 library(ggplot2)
+</code></pre>
 
-# Find the average steps per interval split by weekdays and weekends.
+<pre><code>## Find out what&#39;s changed in ggplot2 with
+## news(Version == &quot;1.0.1&quot;, package = &quot;ggplot2&quot;)
+</code></pre>
+
+<pre><code class="r"># Find the average steps per interval split by weekdays and weekends.
 avg_by_week_part &lt;- activity_imputed %&gt;% group_by(week_part, interval) %&gt;% summarise_each(funs(mean), steps)
 
 # Make a time series plot for the weekday and weekend average data.

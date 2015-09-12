@@ -75,8 +75,8 @@ na_free <- filter(activity, !is.na(steps))
 overlap <- na_free$date %in% na_data$date
 ```
 * There are `r sum(overlap)` matches between the two data sets.  
-* This indicates that in every case the NAs indicate for missing days.  
-* Therefore, my strategy is going to be to use the average for the five minute intervals to impute the NAs.  
+* This indicates that in every case the NAs indicate a missing day.  
+* Therefore, my imputation strategy will be to replace the NAs within a given interval with the average number of steps per day for that interval (calculated earlier without the NAs).  
 
 ```{r imputation, echo=TRUE}
 # Construct a data frame to match average interval step values to each NA

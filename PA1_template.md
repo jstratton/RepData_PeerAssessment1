@@ -25,7 +25,22 @@ activity[,3] <- as.numeric(activity[,3])
 
 ```r
 library(dplyr)
+```
 
+```
+## 
+## Attaching package: 'dplyr'
+## 
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 # Remove the NA values, group by the date, and then find the sum of the steps by date
 clean_steps <- activity[is.na(activity$steps) == FALSE,]
 total_steps <- clean_steps %>% group_by(date) %>% summarise_each(funs(sum), steps)
@@ -87,8 +102,8 @@ na_free <- filter(activity, !is.na(steps))
 overlap <- na_free$date %in% na_data$date
 ```
 * There are 0 matches between the two data sets.  
-* This indicates that in every case the NAs indicate for missing days.  
-* Therefore, my strategy is going to be to use the average for the five minute intervals to impute the NAs.  
+* This indicates that in every case the NAs indicate a missing day.  
+* Therefore, my imputation strategy will be to replace the NAs within a given interval with the average number of steps per day for that interval (calculated earlier without the NAs).  
 
 
 ```r
@@ -149,7 +164,14 @@ activity_imputed$week_part <- factor(x = activity_imputed$week_part, levels = c(
 ```r
 # Import the qplot library
 library(ggplot2)
+```
 
+```
+## Find out what's changed in ggplot2 with
+## news(Version == "1.0.1", package = "ggplot2")
+```
+
+```r
 # Find the average steps per interval split by weekdays and weekends.
 avg_by_week_part <- activity_imputed %>% group_by(week_part, interval) %>% summarise_each(funs(mean), steps)
 
