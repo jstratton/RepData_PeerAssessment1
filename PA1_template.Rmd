@@ -13,7 +13,7 @@ output:
 fileloc <- paste0(getwd(), "/activity/activity.csv")
 activity <- read.csv(fileloc, header = TRUE, na.strings = "NA", colClasses = "character")
 
-# Convert from character strings to numeric and POSIXlt values.
+# Convert from character strings to numeric and POSIXct values.
 activity[,1] <- as.numeric(activity[,1])
 activity[,2] <- as.POSIXct(activity[,2], format = "%Y-%m-%d")
 activity[,3] <- as.numeric(activity[,3])

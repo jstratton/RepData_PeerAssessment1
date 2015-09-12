@@ -1,4 +1,9 @@
-# Reproducible Research: Peer Assessment 1
+---
+title: "Reproducible Research: Peer Assessment 1"
+output: 
+  html_document:
+    keep_md: yes
+---
 
 
 ## Loading and preprocessing the data
@@ -9,7 +14,7 @@
 fileloc <- paste0(getwd(), "/activity/activity.csv")
 activity <- read.csv(fileloc, header = TRUE, na.strings = "NA", colClasses = "character")
 
-# Convert from character strings to numeric and POSIXlt values.
+# Convert from character strings to numeric and POSIXct values.
 activity[,1] <- as.numeric(activity[,1])
 activity[,2] <- as.POSIXct(activity[,2], format = "%Y-%m-%d")
 activity[,3] <- as.numeric(activity[,3])
@@ -20,22 +25,7 @@ activity[,3] <- as.numeric(activity[,3])
 
 ```r
 library(dplyr)
-```
 
-```
-## 
-## Attaching package: 'dplyr'
-## 
-## The following objects are masked from 'package:stats':
-## 
-##     filter, lag
-## 
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-```
-
-```r
 # Remove the NA values, group by the date, and then find the sum of the steps by date
 clean_steps <- activity[is.na(activity$steps) == FALSE,]
 total_steps <- clean_steps %>% group_by(date) %>% summarise_each(funs(sum), steps)
@@ -44,7 +34,7 @@ total_steps <- clean_steps %>% group_by(date) %>% summarise_each(funs(sum), step
 hist(x = total_steps$steps, col = "red", main = "Histogram of Daily Steps", xlab = "Daily Steps", ylim = c(0, 40))
 ```
 
-![](PA1_template_files/figure-html/histogram-1.png) 
+![plot of chunk histogram](figure/histogram-1.png) 
 
 
 ```r
@@ -70,7 +60,7 @@ avg_activity <- clean_steps %>% group_by(interval) %>% summarise_each(funs(mean)
 plot(x = avg_activity, type = "l", main = "Average Number of Steps vs. Time Interval", xlab = "5 Minute Interval", ylab = "Average Number of Steps")
 ```
 
-![](PA1_template_files/figure-html/avgpattern-1.png) 
+![plot of chunk avgpattern](figure/avgpattern-1.png) 
 
 ```r
 # Find the index of the interval with the maximum average activity.
@@ -124,7 +114,7 @@ total_steps_imputed <- activity_imputed %>% group_by(date) %>% summarise_each(fu
 hist(x = total_steps_imputed$steps, col = "blue", main = "Histogram of Daily Steps, using Imputed Data", xlab = "Daily Steps", ylim = c(0,40))
 ```
 
-![](PA1_template_files/figure-html/imputeddatacomparison-1.png) 
+![plot of chunk imputeddatacomparison](figure/imputeddatacomparison-1.png) 
 
 ```r
 # Compute the mean and median of the daily steps, using the imputed data
@@ -167,4 +157,4 @@ avg_by_week_part <- activity_imputed %>% group_by(week_part, interval) %>% summa
 qplot(x = avg_by_week_part$interval, y = avg_by_week_part$steps, data = avg_by_week_part, facets = . ~ week_part, geom = "line", main = "Average Activity vs. Time", xlab = "5 Minute Interval", ylab = "Average Number of Steps")
 ```
 
-![](PA1_template_files/figure-html/weekplot-1.png) 
+![plot of chunk weekplot](figure/weekplot-1.png) 
