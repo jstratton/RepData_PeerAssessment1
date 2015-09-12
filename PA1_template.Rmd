@@ -112,13 +112,29 @@ median_steps_imputed <- median(total_steps_imputed$steps)
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-* We need to split the data into weekdays and weekends.
+* First, we need to split the data into weekdays and weekends.  
 
-```{r weekdayvsweekend}
+```{r factorization}
 # Add a new column to the activity data to indicate the day of the week.
-activity_imputed <- mutate(activity_imputed, day_name = weekdays(date))
+activity_imputed <- mutate(activity_imputed, week_part = weekdays(date))
 
-# Turn these day names into a factor variable
-activity_imputed$day_name <- factor(x = activity_imputed$day_name, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"), labels = c(rep("Weekday", times = 5), rep("Weekend", times = 2)))
+# Turn the day names into a factor variable
+activity_imputed[activity_imputed$week_part %in% c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"), 4] <- 1
 
+activity_imputed[activity_imputed$week_part %in% c("Sunday", "Saturday"), 4] <- 2
+
+activity_imputed$week_part <- factor(x = activity_imputed$week_part, levels = c("1","2"), labels = c("Weekday", "Weekend"))
+```
+
+* With this factor, we can determine the average activity vs. time separated by whether the data was collected during the week or not.  
+
+```{r weekplot, warning=FALSE}
+# Import the qplot library
+library(ggplot2)
+
+# Find the average steps per interval split by weekdays and weekends.
+avg_by_week_part <- activity_imputed %>% group_by(week_part, interval) %>% summarise_each(funs(mean), steps)
+
+# Make a time series plot for the weekday and weekend average data.
+qplot(x = avg_by_week_part$interval, y = avg_by_week_part$steps, data = avg_by_week_part, facets = . ~ week_part, geom = "line", main = "Average Activity vs. Time", xlab = "5 Minute Interval", ylab = "Average Number of Steps")
 ```
