@@ -97,8 +97,8 @@ na_free <- filter(activity, !is.na(steps))
 overlap <- na_free$date %in% na_data$date
 ```
 * There are 0 matches between the two data sets.  
-* Therefore, in every case the NAs take up the entire day they occur in.  
-* In light of this, my strategy is going to be to use the average for the five minute intervals to impute the NAs.  
+* This indicates that in every case the NAs indicate for missing days.  
+* Therefore, my strategy is going to be to use the average for the five minute intervals to impute the NAs.  
 
 
 ```r
@@ -135,7 +135,6 @@ median_steps_imputed <- median(total_steps_imputed$steps)
 * The mean number of steps is 10766.1886792 when computed from the imputed data, vs. 10766.1886792 computed using data with the NAs omitted.  
 * The median number of steps is 10766.1886792 when computed from the imputed data, vs. 10765 computed using data with the NAs omitted.  
 * From these comparisons, I surmise that using imputed data had a minimal effect on our estimates of the total no. of steps.  
-* On the other hand, days with steps between 10,000 and 15,000 steps occurred far more frequently. I'm not sure if this invalidates the analysis...  
 
 ## Are there differences in activity patterns between weekdays and weekends?
 

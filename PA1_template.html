@@ -136,8 +136,8 @@ na_free &lt;- filter(activity, !is.na(steps))
 overlap &lt;- na_free$date %in% na_data$date</code></pre>
 <ul>
 <li>There are 0 matches between the two data sets.<br /></li>
-<li>Therefore, in every case the NAs take up the entire day they occur in.<br /></li>
-<li>In light of this, my strategy is going to be to use the average for the five minute intervals to impute the NAs.</li>
+<li>This indicates that in every case the NAs indicate for missing days.<br /></li>
+<li>Therefore, my strategy is going to be to use the average for the five minute intervals to impute the NAs.</li>
 </ul>
 <pre class="r"><code># Construct a data frame to match average interval step values to each NA
 linker &lt;- data.frame(0:2355, rep(0, times = 2356))
@@ -163,8 +163,7 @@ median_steps_imputed &lt;- median(total_steps_imputed$steps)</code></pre>
 <ul>
 <li>The mean number of steps is 10766.1886792 when computed from the imputed data, vs. 10766.1886792 computed using data with the NAs omitted.<br /></li>
 <li>The median number of steps is 10766.1886792 when computed from the imputed data, vs. 10765 computed using data with the NAs omitted.<br /></li>
-<li>From these comparisons, I surmise that using imputed data had a minimal effect on our estimates of the total no. of steps.<br /></li>
-<li>On the other hand, days with steps between 10,000 and 15,000 steps occurred far more frequently. I’m not sure if this invalidates the analysis…</li>
+<li>From these comparisons, I surmise that using imputed data had a minimal effect on our estimates of the total no. of steps.</li>
 </ul>
 </div>
 <div id="are-there-differences-in-activity-patterns-between-weekdays-and-weekends" class="section level2">
