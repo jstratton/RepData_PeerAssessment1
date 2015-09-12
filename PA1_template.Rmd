@@ -29,7 +29,7 @@ clean_steps <- activity[is.na(activity$steps) == FALSE,]
 total_steps <- clean_steps %>% group_by(date) %>% summarise_each(funs(sum), steps)
 
 # Make the histogram
-hist(x = total_steps$steps, col = "red", main = "Histogram of Daily Steps", xlab = "Daily Steps", ylim = c(0, 30))
+hist(x = total_steps$steps, col = "red", main = "Histogram of Daily Steps", xlab = "Daily Steps", ylim = c(0, 40))
 ```
 
 ```{r meanandmedian, warning=FALSE}
@@ -76,7 +76,7 @@ overlap <- na_free$date %in% na_data$date
 ```
 * There are `r sum(overlap)` matches between the two data sets.  
 * Therefore, in every case the NAs take up the entire day they occur in.  
-* In light of this, my strategy is going to be to use the average for the five minute intervals to impute the NAs.
+* In light of this, my strategy is going to be to use the average for the five minute intervals to impute the NAs.  
 
 ```{r imputation}
 # Construct a data frame to match average interval step values to each NA
@@ -86,6 +86,39 @@ linker[avg_activity$interval + 1, 2] <- avg_activity$steps
 
 # overwrite the NA values
 na_data <- mutate(na_data, steps = linker[interval + 1, 2])
+
+# Merge the data franes conntaining the filled NAs and the complete data
+activity_imputed <- rbind(na_data, na_free)
 ```
 
+* Now we need to compare the results of using the imputed data to the original analysis.
+
+```{r imputeddatacomparison}
+
+# Make the total steps histogram using the imputed data
+total_steps_imputed <- activity_imputed %>% group_by(date) %>% summarise_each(funs(sum), steps)
+
+hist(x = total_steps_imputed$steps, col = "blue", main = "Histogram of Daily Steps, using Imputed Data", xlab = "Daily Steps", ylim = c(0,40))
+
+# Compute the mean and median of the daily steps, using the imputed data
+mean_steps_imputed <- mean(total_steps_imputed$steps)
+median_steps_imputed <- median(total_steps_imputed$steps)
+```
+
+* The mean number of steps is `r mean_steps_imputed` when computed from the imputed data, vs. `r mean_steps` computed using data with the NAs omitted.  
+* The median number of steps is `r median_steps_imputed` when computed from the imputed data, vs. `r median_steps` computed using data with the NAs omitted.  
+* From these comparisons, I surmise that using imputed data had a minimal effect on our estimates of the total no. of steps.  
+* On the other hand, days with steps between 10,000 and 15,000 steps occurred far more frequently. I'm not sure if this invalidates the analysis...  
+
 ## Are there differences in activity patterns between weekdays and weekends?
+
+* We need to split the data into weekdays and weekends.
+
+```{r weekdayvsweekend}
+# Add a new column to the activity data to indicate the day of the week.
+activity_imputed <- mutate(activity_imputed, day_name = weekdays(date))
+
+# Turn these day names into a factor variable
+activity_imputed$day_name <- factor(x = activity_imputed$day_name, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"), labels = c(rep("Weekday", times = 5), rep("Weekend", times = 2)))
+
+```
